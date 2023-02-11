@@ -10,7 +10,8 @@ export class ProjectService {
   }
 
   async getProjectByUid(uid: string) {
-    return await this.prisma.project.findFirstOrThrow({
+    
+    return await this.prisma.project.findUniqueOrThrow({
       where: { uid },
       select: {
         address: true,

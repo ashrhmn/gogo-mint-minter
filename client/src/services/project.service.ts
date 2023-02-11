@@ -1,6 +1,6 @@
+import { isAddress } from "ethers/lib/utils";
 import { z } from "zod";
 import { service } from "./api.service";
-import { isAddress } from "ethers";
 
 export const getProjectByUid = async (uid: string) =>
   service(
