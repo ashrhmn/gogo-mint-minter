@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int               @id @default(autoincrement())
+  name                  String?
+  discordUsername       String?
+  discordDiscriminator  Int?
+  walletAddress         String?           @unique
+  projects              Project[]
+  accessToken           String?
+  refreshToken          String?
+  roleIntegrationsAdded RoleIntegration[]
+
+  @@unique([discordUsername, discordDiscriminator])
+  @@map("users")
+}
+
+model Project {
+  id                 Int               @id @default(autoincrement())
+  userId             Int
+  name               String
+  description        String?
+  imageUrl           String?
+  unrevealedImageUrl String?
+  bannerUrl          String?
+  owner              User              @relation(fields: [userId], references: [id])
+  address            String?
+  nfts               NFT[]
+  chainId            Int?
+  collectionType     String?
+  uid                String?           @unique
+  saleConfigs        SaleConfig[]
+  royaltyReceiver    String?
+  royaltyPercentage  Float             @default(0.0)
+  roleIntegrations   RoleIntegration[]
+
+  @@unique([address, chainId])
+  @@map("projects")
+}
+
+model TokenGatedTransferEvents {
+  id               Int    @id @default(autoincrement())
+  address          String
+  chainId          Int
+  from             String
+  to               String
+  tokenId          String
+  blockNumber      Int
+  logIndex         Int
+  transactionIndex Int
+  blockHash        String
+  transactionHash  String
+
+  @@unique([blockNumber, blockHash, transactionHash, transactionIndex, logIndex, address, chainId])
+  @@map("token_gated_transfer_events")
+}
+
+model WhitelistLimits {
+  id           Int        @id @default(autoincrement())
+  address      String
+  limit        Int
+  saleConfig   SaleConfig @relation(fields: [saleConfigId], references: [id], onDelete: Cascade)
+  saleConfigId Int
+
+  @@unique([address, limit, saleConfigId])
+  @@map("whitelist_limits")
+}
+
+model SaleConfig {
+  id                Int               @id @default(autoincrement())
+  saleIdentifier    String            @unique
+  enabled           Boolean
+  saleType          String
+  startTime         Int
+  endTime           Int
+  mintCharge        Float
+  whitelist         WhitelistLimits[]
+  maxMintPerWallet  Int
+  maxMintInSale     Int
+  tokenGatedAddress String
+  Project           Project?          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId         Int?
+
+  @@map("sale_configs")
+}
+
+model NFT {
+  id              Int     @id @default(autoincrement())
+  projectId       Int
+  project         Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tokenId         Int?
+  name            String
+  description     String?
+  imageUrl        String?
+  backgroundColor String?
+  externalUrl     String?
+  properties      String  @default("[]")
+
+  @@unique([projectId, tokenId])
+  @@map("nfts")
+}
+
+// model NFTMetadataProperties {
+//   id    Int    @id @default(autoincrement())
+//   type  String
+//   value String
+//   NFT   NFT?   @relation(fields: [nFTId], references: [id], onDelete: Cascade)
+//   nFTId Int?
+
+//   @@map("nft_metadata_properties")
+// }
+
+model RoleIntegration {
+  id           Int      @id @default(autoincrement())
+  Project      Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    Int?
+  guildId      String
+  roleId       String
+  minValidNfts Int
+  addedBy      User     @relation(fields: [userId], references: [id])
+  userId       Int
+
+  @@unique([projectId, guildId, roleId])
+  @@map("role_integrations")
+}

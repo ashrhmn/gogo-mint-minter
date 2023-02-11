@@ -1,0 +1,19 @@
+{
+  "name": "gogo-mint-minter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "api",
+    "client"
+  ],
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "env-cmd": "^10.1.0"
+  },
+  "scripts": {
+    "dev": "env-cmd --silent concurrently --names \"api,client\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn --cwd api dev\" \"yarn --cwd client dev\"",
+    "build": "env-cmd --silent concurrently --names \"api,client\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn --cwd api build\" \"yarn --cwd client build\""
+  }
+}
