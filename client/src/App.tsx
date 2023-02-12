@@ -1,6 +1,4 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import HomePage from "./pages/home";
-import About from "./pages/about";
 import RootLayout from "./layouts/root";
 import ErrorPage from "./pages/error";
 import MintPage from "./pages/mint-page";
