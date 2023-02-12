@@ -10,7 +10,10 @@ import { handleError } from "../utils/error.utils";
 import { useEffect, useState } from "react";
 import { BigNumber, providers } from "ethers";
 import { shortenIfAddress, useEthers } from "@usedapp/core";
-import { JsonRpcProvider } from "@ethersproject/providers";
+import {
+  JsonRpcProvider,
+  StaticJsonRpcProvider,
+} from "@ethersproject/providers";
 import { RPC_URLS } from "../configs/app.config";
 import {
   Collection1155,
@@ -51,6 +54,48 @@ const MintPage = () => {
     queryFn: () => getCurrentSaleByUid(uid || ""),
     enabled: !!uid,
   });
+
+  useEffect(() => {
+    const contract = !project
+      ? null
+      : project.collectionType === "721"
+      ? Collection721__factory.connect(
+          project.address,
+          new StaticJsonRpcProvider(RPC_URLS[project.chainId])
+        )
+      : null;
+    if (contract) {
+      contract.on(contract.filters.Transfer(), () => setRefetcher((r) => !r));
+    }
+
+    return () => {
+      if (contract) {
+        contract.removeAllListeners();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const contract = !project
+      ? null
+      : project.collectionType === "1155"
+      ? Collection1155__factory.connect(
+          project.address,
+          new StaticJsonRpcProvider(RPC_URLS[project.chainId])
+        )
+      : null;
+    if (contract) {
+      contract.on(contract.filters.TransferSingle(), () =>
+        setRefetcher((r) => !r)
+      );
+    }
+
+    return () => {
+      if (contract) {
+        contract.removeAllListeners();
+      }
+    };
+  }, []);
 
   const { account, chainId, library, activateBrowserWallet, activate } =
     useEthers();
