@@ -11,8 +11,13 @@ export class ProjectController {
     return this.projectService.getAllProjects();
   }
 
+  @Get('current-sale/:uid')
+  async getCurrentSale(@Param('uid') uid: string) {
+    return this.projectService.getCurrentSale(uid);
+  }
+
   @Get(':uid')
-  async getProjectByUid(@Param("uid") uid: string) {
+  async getProjectByUid(@Param('uid') uid: string) {
     return this.projectService.getProjectByUid(uid);
   }
 }

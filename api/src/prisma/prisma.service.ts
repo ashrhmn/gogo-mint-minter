@@ -8,7 +8,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
    */
   constructor() {
     super({
-      errorFormat:"pretty"
+      errorFormat: 'pretty',
     });
   }
   async onModuleInit() {
