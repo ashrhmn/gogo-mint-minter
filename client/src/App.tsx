@@ -10,8 +10,6 @@ import { RPC_URLS } from "./configs/app.config";
 const App = () => {
   const router = createBrowserRouter([
     {
-      path: "/",
-      element: <RootLayout />,
       errorElement: <ErrorPage />,
       children: [
         {
