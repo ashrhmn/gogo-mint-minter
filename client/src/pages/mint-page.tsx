@@ -28,10 +28,13 @@ import { multiply } from "../utils/Number.utils";
 const MintPage = () => {
   const { uid } = useParams();
 
+  const [refetcher, setRefetcher] = useState(false);
+
   const {
     data: project,
     status: projectFetchStatus,
     error: projectFetchError,
+    refetch: refetchProject,
   } = useQuery({
     queryKey: ["project", uid || ""],
     queryFn: () => getProjectByUid(uid || ""),
@@ -42,6 +45,7 @@ const MintPage = () => {
     data: currentSale,
     status: currentSaleStatus,
     error: currentSaleError,
+    refetch: refetchCurrentSale,
   } = useQuery({
     queryKey: ["current-sale", uid || ""],
     queryFn: () => getCurrentSaleByUid(uid || ""),
@@ -68,7 +72,7 @@ const MintPage = () => {
       const balance = await signer.getBalance();
       setUserEtherBalance(balance);
     })();
-  }, [account, library, chainId]);
+  }, [account, library, chainId, refetcher]);
 
   useEffect(() => {
     (async () => {
@@ -104,7 +108,7 @@ const MintPage = () => {
         userBalance,
       }));
     })();
-  }, [account, chainId, currentSale, project]);
+  }, [account, chainId, currentSale, project, refetcher]);
 
   useEffect(() => {
     (async () => {
@@ -133,7 +137,12 @@ const MintPage = () => {
         claimedSupply,
       }));
     })();
-  }, [account, chainId, currentSale, project]);
+  }, [account, chainId, currentSale, project, refetcher]);
+
+  useEffect(() => {
+    refetchProject();
+    refetchCurrentSale();
+  }, [refetcher]);
 
   const handleMintClick = async () => {
     try {
@@ -235,6 +244,8 @@ const MintPage = () => {
         loading: "Mining... (Do not close this window)",
         success: "Transaction Completed",
       });
+      setRefetcher((v) => !v);
+      setMintBgProc((v) => v - 1);
     } catch (error) {
       setMintBgProc((v) => v - 1);
       console.log("Minting error : ", error);
