@@ -112,8 +112,7 @@ const MintPage = () => {
         !project ||
         !project.address ||
         !project.chainId ||
-        !RPC_URLS[project.chainId] ||
-        !chainId
+        !RPC_URLS[project.chainId]
       )
         return;
       setConfig((c) => ({ ...c, userBalance: -1 }));

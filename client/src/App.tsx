@@ -25,7 +25,7 @@ const App = () => {
           element: <About />,
         },
         {
-          path: "/mint/:uid",
+          path: "/:uid",
           element: <MintPage />,
         },
       ],
