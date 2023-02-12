@@ -2,10 +2,18 @@ version: '3.7'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - PORT=${PORT:-80}
+    image: gogo-mint-minter-img
     ports:
-      - 4000:4000
+      - "80:${PORT:-80}"
     restart: always
     container_name: gogo-mint-minter
     env_file:
       - .env
+  redis:
+    image: redis
+    container_name: redis
+    restart: always

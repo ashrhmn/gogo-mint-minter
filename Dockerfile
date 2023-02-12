@@ -20,6 +20,7 @@ COPY --from=builder /app/api/dist/ .
 COPY --from=builder /app/client/dist/ ./client
 
 ENV NODE_ENV=production
+ENV REDIS_HOST=redis
 
 EXPOSE 4000
 
