@@ -14,6 +14,7 @@
   },
   "scripts": {
     "dev": "env-cmd --silent concurrently --names \"api,client\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn --cwd api dev\" \"yarn --cwd client dev\"",
-    "build": "env-cmd --silent concurrently --names \"api,client\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn --cwd api build\" \"yarn --cwd client build\""
+    "build": "env-cmd --silent concurrently --names \"api,client\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn --cwd api build\" \"yarn --cwd client build\"",
+    "dbpush": "env-cmd --silent yarn --cwd api prisma db push"
   }
 }

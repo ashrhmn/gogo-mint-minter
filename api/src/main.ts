@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
-  const port = process.env.PORT || 4000;
+  const port = process.env.PORT || 80;
   await app.listen(port);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

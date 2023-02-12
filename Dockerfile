@@ -22,6 +22,8 @@ COPY --from=builder /app/client/dist/ ./client
 ENV NODE_ENV=production
 ENV REDIS_HOST=redis
 
-EXPOSE 4000
+ARG PORT
+ENV PORT "${PORT}"
+EXPOSE "${PORT}"
 
 CMD ["node", "main.js"]
