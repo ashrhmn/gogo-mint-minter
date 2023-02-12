@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { arrayify, parseEther, solidityKeccak256 } from 'ethers/lib/utils';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CacheService } from 'src/providers/cache/cache-manager.service';
@@ -36,72 +36,80 @@ export class MintService {
   }
 
   async prepareMint(projectId: number, address: string, mintCount: number) {
-    const currentSale = await this.projectService
-      .getCurrentSaleById(projectId)
-      .catch(() => null);
-    if (!currentSale) throw new Error('No sale running');
+    try {
+      const currentSale = await this.projectService
+        .getCurrentSaleById(projectId)
+        .catch(() => null);
+      if (!currentSale) throw new Error('No sale running');
 
-    const [userLimit, { message, signature }, saleConfigProof] =
-      await Promise.all([
-        this.cacheService.getIfCached(
-          `user-limit-${projectId}-${currentSale.saleIdentifier}-${address}`,
-          120,
-          () =>
-            this.prisma.whitelistLimits
-              .findFirstOrThrow({
-                where: { address: address, saleConfigId: currentSale.id },
-                select: { address: true, limit: true },
-              })
-              .catch(() => ({ address: address, limit: 0 })),
-        ),
-        this._getMintSignature(address, mintCount),
-        this.cacheService.getIfCached(
-          `config-proof-${projectId}-${currentSale.saleIdentifier}`,
-          30,
-          () =>
-            this.saleConfigService.getSaleConfigProofByProjectId(
-              projectId,
-              currentSale.saleIdentifier,
-            ),
-        ),
-      ]);
+      const [userLimit, { message, signature }, saleConfigProof] =
+        await Promise.all([
+          this.cacheService.getIfCached(
+            `user-limit-${projectId}-${currentSale.saleIdentifier}-${address}`,
+            120,
+            () =>
+              this.prisma.whitelistLimits
+                .findFirstOrThrow({
+                  where: {
+                    address: { equals: address, mode: 'insensitive' },
+                    saleConfigId: currentSale.id,
+                  },
+                  select: { address: true, limit: true },
+                })
+                .catch(() => ({ address: address, limit: 0 })),
+          ),
+          this._getMintSignature(address, mintCount),
+          this.cacheService.getIfCached(
+            `config-proof-${projectId}-${currentSale.saleIdentifier}`,
+            30,
+            () =>
+              this.saleConfigService.getSaleConfigProofByProjectId(
+                projectId,
+                currentSale.saleIdentifier,
+              ),
+          ),
+        ]);
 
-    const whitelistProof = await this.cacheService.getIfCached(
-      `whitelist-proof-${projectId}-${currentSale.saleIdentifier}-${address}`,
-      30,
-      async () =>
-        this.saleConfigService.getWhitelistProof(
-          currentSale.saleType,
-          currentSale.whitelist,
-          userLimit,
-        ),
-    );
+      const whitelistProof = await this.cacheService.getIfCached(
+        `whitelist-proof-${projectId}-${currentSale.saleIdentifier}-${address}`,
+        30,
+        async () =>
+          this.saleConfigService.getWhitelistProof(
+            currentSale.saleType,
+            currentSale.whitelist,
+            userLimit,
+          ),
+      );
 
-    const config = getSolVersionConfig({
-      enabled: currentSale.enabled,
-      endTime: currentSale.endTime,
-      maxMintInSale: currentSale.maxMintInSale,
-      maxMintPerWallet: currentSale.maxMintPerWallet,
-      mintCharge: currentSale.mintCharge,
-      saleType: currentSale.saleType as 'public' | 'private',
-      startTime: currentSale.startTime,
-      uuid: currentSale.saleIdentifier,
-      whitelistAddresses: currentSale.whitelist,
-      tokenGatedAddress: currentSale.tokenGatedAddress,
-    });
+      const config = getSolVersionConfig({
+        enabled: currentSale.enabled,
+        endTime: currentSale.endTime,
+        maxMintInSale: currentSale.maxMintInSale,
+        maxMintPerWallet: currentSale.maxMintPerWallet,
+        mintCharge: currentSale.mintCharge,
+        saleType: currentSale.saleType as 'public' | 'private',
+        startTime: currentSale.startTime,
+        uuid: currentSale.saleIdentifier,
+        whitelistAddresses: currentSale.whitelist,
+        tokenGatedAddress: currentSale.tokenGatedAddress,
+      });
 
-    const mintChargeInWei = parseEther(
-      (+multiply(currentSale.mintCharge, mintCount).toFixed(18)).toString(),
-    ).toString();
+      const mintChargeInWei = parseEther(
+        (+multiply(currentSale.mintCharge, mintCount).toFixed(18)).toString(),
+      ).toString();
 
-    return {
-      config,
-      message,
-      signature,
-      whitelistProof,
-      mintChargeInWei,
-      whitelistMintLimit: userLimit.limit,
-      saleConfigProof,
-    };
+      return {
+        config,
+        message,
+        signature,
+        whitelistProof,
+        mintChargeInWei,
+        whitelistMintLimit: userLimit.limit,
+        saleConfigProof,
+      };
+    } catch (error) {
+      console.log('Error preparing mint : ', error);
+      throw new BadRequestException(error?.message);
+    }
   }
 }

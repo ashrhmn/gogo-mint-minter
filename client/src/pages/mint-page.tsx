@@ -27,6 +27,8 @@ import { prepareMint } from "../services/mint.service";
 import { normalizeString } from "../utils/String.utils";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { multiply } from "../utils/Number.utils";
+import { ZodUtils } from "../utils/zod.utils";
+import { z } from "zod";
 
 const MintPage = () => {
   const { uid } = useParams();
@@ -238,7 +240,23 @@ const MintPage = () => {
           address: account,
           mintCount,
           projectId: project.id,
-        }).catch(() => null),
+        }).catch((err) => {
+          console.log(err);
+          if (
+            ZodUtils.followsSchema(
+              err,
+              z.object({
+                response: z.object({
+                  data: z.object({
+                    message: z.string(),
+                  }),
+                }),
+              })
+            )
+          )
+            toast.error(err.response.data.message);
+          null;
+        }),
         {
           error: null,
           loading: "Preparing Mint...",
