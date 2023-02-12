@@ -251,7 +251,7 @@ const MintPage = () => {
   if (projectFetchStatus === "loading") return <FullScreenSpinner />;
   if (currentSaleStatus === "error") handleError(currentSaleError);
   if (currentSaleStatus === "loading") return <FullScreenSpinner />;
-  if (!project) return <FullScreenSpinner />;
+  if (!project || mintConfig.claimedSupply === -1) return <FullScreenSpinner />;
 
   return (
     <div className="-translate-y-24">

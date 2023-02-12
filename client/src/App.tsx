@@ -17,14 +17,6 @@ const App = () => {
       errorElement: <ErrorPage />,
       children: [
         {
-          path: "/",
-          element: <HomePage />,
-        },
-        {
-          path: "/about",
-          element: <About />,
-        },
-        {
           path: "/:uid",
           element: <MintPage />,
         },
