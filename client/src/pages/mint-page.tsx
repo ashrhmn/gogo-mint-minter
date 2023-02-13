@@ -255,7 +255,7 @@ const MintPage = () => {
             )
           )
             toast.error(err.response.data.message);
-          null;
+          return null;
         }),
         {
           error: null,
