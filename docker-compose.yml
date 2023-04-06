@@ -17,3 +17,7 @@ services:
     image: redis
     container_name: gogo-minter-redis
     restart: always
+networks:
+  default:
+    name: nginx
+    external: true
