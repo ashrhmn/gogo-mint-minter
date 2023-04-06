@@ -7,8 +7,8 @@ services:
       args:
         - PORT=${PORT:-80}
     image: gogo-mint-minter-img
-    ports:
-      - "80:${PORT:-80}"
+    # ports:
+    #   - "80:${PORT:-80}"
     restart: always
     container_name: gogo-mint-minter
     env_file:
