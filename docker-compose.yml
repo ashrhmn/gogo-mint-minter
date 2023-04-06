@@ -15,5 +15,5 @@ services:
       - .env
   redis:
     image: redis
-    container_name: redis
+    container_name: gogo-minter-redis
     restart: always

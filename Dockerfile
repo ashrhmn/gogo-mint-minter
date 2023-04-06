@@ -11,6 +11,8 @@ RUN yarn build
 
 FROM node:16-alpine
 
+RUN yarn global add pm2
+
 WORKDIR /app
 COPY ./api/package.json .
 RUN yarn install --frozen-lockfile --production
@@ -20,10 +22,10 @@ COPY --from=builder /app/api/dist/ .
 COPY --from=builder /app/client/dist/ ./client
 
 ENV NODE_ENV=production
-ENV REDIS_HOST=redis
+ENV REDIS_HOST=gogo-minter-redis
 
 ARG PORT
 ENV PORT "${PORT}"
 EXPOSE "${PORT}"
 
-CMD ["node", "main.js"]
+CMD ["pm2-runtime", "/app/main.js -i max"]
