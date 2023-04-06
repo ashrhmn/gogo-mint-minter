@@ -9,6 +9,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     super({
       errorFormat: 'pretty',
+      log: ['query', 'info', 'warn'],
     });
   }
   async onModuleInit() {
