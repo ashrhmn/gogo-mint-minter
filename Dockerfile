@@ -28,4 +28,4 @@ ARG PORT
 ENV PORT "${PORT}"
 EXPOSE "${PORT}"
 
-CMD ["pm2-runtime", "/app/main.js -i max"]
+CMD ["pm2-runtime", "/app/main.js","-i max"]
